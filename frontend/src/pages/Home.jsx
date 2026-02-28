@@ -1,5 +1,6 @@
 //from Home_v1.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import Navbar from '../components/Navbar';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
@@ -22,30 +23,6 @@ const styles = `
   }
 
   body { font-family: var(--font-ui); background: var(--off-white); color: var(--text-dark); }
-
-  /* NAVBAR */
-  .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 48px; height: 68px;
-    background: var(--yale-blue);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .navbar-logo { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--white); letter-spacing: -0.01em; text-decoration: none; }
-  .navbar-logo span { color: var(--tan); }
-  .navbar-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-  .navbar-links a { font-family: var(--font-ui); font-size: 0.875rem; font-weight: 400; color: rgba(255,255,255,0.75); text-decoration: none; letter-spacing: 0.02em; transition: color 0.2s; }
-  .navbar-links a:hover { color: var(--white); }
-  .navbar-right { display: flex; align-items: center; gap: 16px; }
-  .btn-login { font-family: var(--font-ui); font-size: 0.875rem; font-weight: 400; color: rgba(255,255,255,0.75); letter-spacing: 0.02em; transition: color 0.2s; background: none; border: none; cursor: pointer; }
-  .btn-login:hover { color: var(--white); }
-  .btn-nav-icon { position: relative; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-  .btn-nav-icon:hover { background: rgba(255,255,255,0.25); }
-  .btn-nav-icon svg { width: 16px; height: 16px; stroke: white; fill: none; }
-  .chat-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; background: var(--tan); border-radius: 50%; border: 2px solid var(--yale-blue); display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-size: 0.5rem; font-weight: 700; color: var(--yale-blue); line-height: 1; }
-  .btn-nav-profile { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-  .btn-nav-profile:hover { background: rgba(255,255,255,0.25); }
-  .btn-nav-profile svg { width: 16px; height: 16px; stroke: white; fill: none; }
 
   /* HERO */
   .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: var(--yale-blue); padding: 68px 48px 0; }
@@ -80,6 +57,9 @@ const styles = `
   .category-card-5 { background: #0a3560; }
   .category-card { position: relative; overflow: hidden; cursor: pointer; aspect-ratio: 3/4; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px 24px; transition: all 0.35s ease; text-decoration: none; }
   .category-card:hover { transform: scale(1.02); z-index: 2; }
+  .category-card-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .category-card-image-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,53,107,0.3) 0%, rgba(0,53,107,0.85) 100%); z-index: 1; }
+  .category-card.has-image .category-card-bg { display: none; }
   .category-card-1 { background: var(--yale-blue); }
   .category-card-2 { background: #1a4a7a; }
   .category-card-3 { background: var(--yale-blue-dark); }
@@ -140,18 +120,6 @@ const ArrowRight = () => (
   </svg>
 );
 
-const ProfileIcon = () => (
-  <svg viewBox="0 0 24 24" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-  </svg>
-);
-
-const ChatIcon = () => (
-  <svg viewBox="0 0 24 24" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-  </svg>
-);
-
 
 const categories = [
   { id: 1, label: "Category 01", title: "Clothing",          icon: "✦", cardClass: "category-card-1", href: "/marketplace?tab=Clothing" },
@@ -170,35 +138,44 @@ const steps = [
 ];
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // swap with real auth state later
+  const [categoryImages, setCategoryImages] = useState({});
+
+  useEffect(() => {
+    // Fetch the most recent listing for each category
+    const fetchCategoryImages = async () => {
+      const imageData = {};
+
+      // Fetch listings for each category in parallel
+      const promises = categories.map(async (category) => {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/api/listings?category=${encodeURIComponent(category.title)}`
+          );
+
+          if (response.ok) {
+            const listings = await response.json();
+            // Get the first (most recent) listing with an image
+            const listingWithImage = listings.find(listing => listing.image_url);
+            if (listingWithImage) {
+              imageData[category.title] = listingWithImage.image_url;
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to fetch image for ${category.title}:`, error);
+        }
+      });
+
+      await Promise.all(promises);
+      setCategoryImages(imageData);
+    };
+
+    fetchCategoryImages();
+  }, []);
 
   return (
     <>
+      <Navbar />
       <style>{styles}</style>
-
-      <nav className="navbar">
-        <a href="/" className="navbar-logo">Yale<span>Bay</span></a>
-        <ul className="navbar-links">
-          <li><a href="/marketplace">Browse</a></li>
-          <li><a href="/create-listing">Sell</a></li>
-        </ul>
-        <div className="navbar-right">
-          {isLoggedIn ? (
-            <>
-              <a href="/chat" className="btn-nav-icon" title="Messages">
-                <ChatIcon />
-                <span className="chat-badge">2</span>
-              </a>
-              <div className="btn-nav-profile"><ProfileIcon /></div>
-            </>
-          ) : (
-            <>
-              <button className="btn-login" onClick={() => setIsLoggedIn(true)}>Log in</button>
-              <div className="btn-nav-profile"><ProfileIcon /></div>
-            </>
-          )}
-        </div>
-      </nav>
 
       <section className="hero">
         <p className="hero-eyebrow">Yale University · Student Marketplace</p>
@@ -221,38 +198,32 @@ export default function Home() {
         <p className="section-label">Explore</p>
         <h2 className="section-title">Shop by<br /><em>Category</em></h2>
         <div className="categories-grid">
-          {categories.map((cat) => (
-            <a key={cat.id} href={cat.href} className={`category-card ${cat.cardClass}`}>
-              <div className="category-card-bg">{cat.icon}</div>
-              <p className="category-card-label">{cat.label}</p>
-              <h3 className="category-card-title">{cat.title}</h3>
-              <div className="category-card-arrow"><ArrowRight /></div>
-            </a>
-          ))}
-        </div>
-      </section>
+          {categories.map((cat) => {
+            const imageUrl = categoryImages[cat.title];
 
-      <section className="how-section">
-        <div className="how-grid">
-          <div>
-            <p className="section-label">How It Works</p>
-            <h2 className="section-title">Simple as<br /><em>three steps</em></h2>
-            <div className="how-steps">
-              {steps.map(step => (
-                <div key={step.n} className="how-step">
-                  <span className="how-step-num">{step.n}</span>
-                  <div className="how-step-content">
-                    <h3>{step.h}</h3>
-                    <p>{step.p}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="how-visual">
-            <div className="how-visual-inner">Yale<br />Bay</div>
-            <div className="how-visual-badge"><p>Yale NetID Required</p></div>
-          </div>
+            return (
+              <a
+                key={cat.id}
+                href={cat.href}
+                className={`category-card ${cat.cardClass} ${imageUrl ? 'has-image' : ''}`}
+              >
+                {imageUrl && (
+                  <>
+                    <img
+                      src={`http://localhost:8000${imageUrl}`}
+                      alt={cat.title}
+                      className="category-card-image"
+                    />
+                    <div className="category-card-image-overlay" />
+                  </>
+                )}
+                <div className="category-card-bg">{cat.icon}</div>
+                <p className="category-card-label">{cat.label}</p>
+                <h3 className="category-card-title">{cat.title}</h3>
+                <div className="category-card-arrow"><ArrowRight /></div>
+              </a>
+            );
+          })}
         </div>
       </section>
 

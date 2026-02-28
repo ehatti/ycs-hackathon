@@ -1,631 +1,358 @@
-//from Marketplace_v2.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --yale-blue: #00356B;
-    --yale-blue-dark: #002654;
-    --tan: #d6ae6b;
-    --tan-light: #F5EFE6;
-    --tan-dark: #A89070;
-    --white: #FFFFFF;
-    --off-white: #FAFAF8;
-    --light-gray: #F0EFED;
-    --border: #E5E3DF;
-    --text-dark: #1a1a1a;
-    --text-mid: #4a4a4a;
-    --text-light: #9a9a9a;
-    --font-display: 'Playfair Display', serif;
-    --font-ui: 'Plus Jakarta Sans', sans-serif;
+  .marketplace-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 108px 20px 40px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
-  body { font-family: var(--font-ui); background: var(--off-white); color: var(--text-dark); }
-
-  /* NAVBAR */
-  .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 48px; height: 68px;
-    background: var(--yale-blue);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .navbar-logo { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--white); letter-spacing: -0.01em; text-decoration: none; }
-  .navbar-logo span { color: var(--tan); }
-  .navbar-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-  .navbar-links a { font-family: var(--font-ui); font-size: 0.875rem; font-weight: 400; color: rgba(255,255,255,0.75); text-decoration: none; letter-spacing: 0.02em; transition: color 0.2s; }
-  .navbar-links a:hover { color: var(--white); }
-  .navbar-links a.active { color: var(--white); border-bottom: 1px solid var(--tan); padding-bottom: 2px; }
-  .navbar-right { display: flex; align-items: center; gap: 16px; }
-  .btn-login { font-family: var(--font-ui); font-size: 0.875rem; font-weight: 400; color: rgba(255,255,255,0.75); letter-spacing: 0.02em; transition: color 0.2s; background: none; border: none; cursor: pointer; }
-  .btn-login:hover { color: var(--white); }
-  .btn-nav-icon { position: relative; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-  .btn-nav-icon:hover { background: rgba(255,255,255,0.25); }
-  .btn-nav-icon svg { width: 16px; height: 16px; stroke: white; fill: none; }
-  .chat-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; background: var(--tan); border-radius: 50%; border: 2px solid var(--yale-blue); display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-size: 0.5rem; font-weight: 700; color: var(--yale-blue); }
-  .btn-nav-profile { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-  .btn-nav-profile:hover { background: rgba(255,255,255,0.25); }
-  .btn-nav-profile svg { width: 16px; height: 16px; stroke: white; fill: none; }
-
-  /* PAGE WRAPPER */
-  .page { padding-top: 68px; min-height: 100vh; }
-
-  /* SEARCH + TABS BAR */
-  .top-bar {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 68px;
-    z-index: 90;
+  .marketplace-header {
+    margin-bottom: 32px;
   }
 
-  .search-row {
-    padding: 20px 48px 0;
+  .marketplace-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: #00356B;
+    margin-bottom: 16px;
+  }
+
+  .search-bar {
     display: flex;
-    align-items: center;
     gap: 12px;
-  }
-
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    max-width: 560px;
-  }
-
-  .search-wrap svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    stroke: var(--text-light);
-    fill: none;
+    margin-bottom: 32px;
   }
 
   .search-input {
-    width: 100%;
-    padding: 10px 16px 10px 40px;
-    font-family: var(--font-ui);
-    font-size: 0.875rem;
-    color: var(--text-dark);
-    background: var(--light-gray);
-    border: 1px solid var(--border);
-    border-radius: 0;
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .search-input:focus {
     outline: none;
-    transition: border-color 0.2s;
+    border-color: #00356B;
   }
 
-  .search-input:focus { border-color: var(--yale-blue); background: var(--white); }
-  .search-input::placeholder { color: var(--text-light); }
-
-  .search-btn {
-    padding: 10px 24px;
-    background: var(--yale-blue);
-    color: var(--white);
-    font-family: var(--font-ui);
-    font-size: 0.875rem;
-    font-weight: 500;
+  .search-button {
+    padding: 12px 24px;
+    background: #00356B;
+    color: white;
     border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
   }
 
-  .search-btn:hover { background: var(--yale-blue-dark); }
+  .search-button:hover {
+    background: #002347;
+  }
 
-  /* TABS */
-  .tabs-row {
+  .category-filters {
     display: flex;
-    align-items: flex-end;
-    gap: 0;
-    padding: 0 48px;
-    overflow-x: auto;
-    scrollbar-width: none;
+    gap: 12px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
   }
 
-  .tabs-row::-webkit-scrollbar { display: none; }
-
-  .tab {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    color: var(--text-light);
-    padding: 14px 20px;
-    border: none;
-    background: none;
+  .category-button {
+    padding: 10px 20px;
+    background: white;
+    color: #00356B;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
     transition: all 0.2s;
-    white-space: nowrap;
   }
 
-  .tab:hover { color: var(--text-dark); }
-
-  .tab.active {
-    color: var(--yale-blue);
-    border-bottom: 2px solid var(--yale-blue);
-    font-weight: 600;
+  .category-button:hover {
+    border-color: #00356B;
   }
 
-  /* MAIN LAYOUT */
-  .main-layout {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 0;
-    min-height: calc(100vh - 68px - 109px);
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    background: var(--white);
-    border-right: 1px solid var(--border);
-    padding: 32px 24px;
-    position: sticky;
-    top: calc(68px + 109px);
-    height: calc(100vh - 68px - 109px);
-    overflow-y: auto;
-  }
-
-  .sidebar-section { margin-bottom: 32px; }
-
-  .sidebar-section-title {
-    font-family: var(--font-ui);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-bottom: 12px;
-  }
-
-  .filter-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 0;
-    cursor: pointer;
-  }
-
-  .filter-option input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--yale-blue);
-    cursor: pointer;
-  }
-
-  .filter-option input[type="radio"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--yale-blue);
-    cursor: pointer;
-  }
-
-  .filter-option label {
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    color: var(--text-mid);
-    cursor: pointer;
-    font-weight: 400;
-  }
-
-  .price-range {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .price-input {
-    width: 80px;
-    padding: 7px 10px;
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--text-dark);
-    background: var(--light-gray);
-    border: 1px solid var(--border);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .price-input:focus { border-color: var(--yale-blue); }
-  .price-sep { font-size: 0.75rem; color: var(--text-light); }
-
-  .clear-filters {
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 500;
-    color: var(--tan-dark);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-    margin-top: 8px;
-  }
-
-  /* LISTINGS AREA */
-  .listings-area { padding: 32px 40px; background: var(--off-white); }
-
-  .listings-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-
-  .listings-title {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--yale-blue);
-    letter-spacing: -0.01em;
-  }
-
-  .listings-title em { font-style: italic; color: var(--tan-dark); }
-
-  .listings-count {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--text-light);
-    font-weight: 400;
+  .category-button.active {
+    background: #00356B;
+    color: white;
+    border-color: #00356B;
   }
 
   .listings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
   }
 
-  /* LISTING CARD */
   .listing-card {
-    background: var(--white);
-    border: 1px solid var(--border);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    display: block;
   }
 
-  .listing-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: #ccc; }
+  .listing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
 
-  .listing-card-img {
+  .listing-image {
     width: 100%;
-    aspect-ratio: 1;
-    background: var(--light-gray);
+    height: 200px;
+    object-fit: cover;
+    background: #f0f0f0;
+  }
+
+  .no-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #f0f0f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    position: relative;
+    color: #999;
+    font-size: 14px;
+  }
+
+  .listing-info {
+    padding: 16px;
+  }
+
+  .listing-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .listing-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .listing-card-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    padding: 3px 8px;
-    font-family: var(--font-ui);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border-radius: 0;
-  }
-
-  .badge-sell { background: var(--yale-blue); color: var(--white); }
-  .badge-rent { background: var(--tan); color: var(--yale-blue); }
-
-  .listing-card-body { padding: 14px 16px; }
-
-  .listing-card-title {
-    font-family: var(--font-display);
-    font-size: 0.95rem;
+  .listing-bid {
+    font-size: 14px;
+    color: #d6ae6b;
     font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .listing-card-sub {
-    font-family: var(--font-ui);
-    font-size: 0.75rem;
-    color: var(--text-light);
-    margin-bottom: 10px;
+  .listing-seller {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
   }
 
-  .listing-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .no-listings {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
   }
 
-  .listing-card-price {
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--yale-blue);
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
   }
 
-  .listing-card-condition {
-    font-family: var(--font-ui);
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-light);
-  }
-
-  .loading-state { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; padding: 80px 0; font-family: var(--font-display); font-size: 1.1rem; font-style: italic; color: var(--text-light); }
-  .error-state { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; padding: 80px 0; font-family: var(--font-ui); font-size: 0.875rem; color: #c0392b; }
-
-  /* EMPTY STATE */
-  .empty-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 0;
-    color: var(--text-light);
-  }
-
-  .empty-state p { font-family: var(--font-display); font-size: 1.2rem; font-style: italic; margin-bottom: 8px; color: var(--text-mid); }
-  .empty-state span { font-family: var(--font-ui); font-size: 0.8rem; }
-
-  @media (max-width: 900px) {
-    .main-layout { grid-template-columns: 1fr; }
-    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-    .navbar { padding: 0 24px; }
-    .search-row { padding: 16px 24px 0; }
-    .tabs-row { padding: 0 24px; }
-    .listings-area { padding: 24px; }
+  .error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
   }
 `;
 
-// ── Icons ──────────────────────────────────────────────
-const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-  </svg>
-);
+const CATEGORIES = [
+  "Clothing",
+  "Accessories",
+  "Furniture & Decor",
+  "Class Materials",
+  "Event Tickets"
+];
 
-const ProfileIcon = () => (
-  <svg viewBox="0 0 24 24" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-  </svg>
-);
+export default function Marketplace() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('tab') || '');
 
-const ChatIcon = () => (
-  <svg viewBox="0 0 24 24" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-  </svg>
-);
+  useEffect(() => {
+    // Parse category from URL on mount
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setSelectedCategory(tabParam);
+    }
+  }, [searchParams]);
 
-// ── Tabs ───────────────────────────────────────────────
-const TABS = ["All", "Clothing", "Accessories", "Furniture & Decor", "Class Materials", "Event Tickets"];
+  useEffect(() => {
+    fetchListings();
+  }, [selectedCategory]);
 
-// ── Filters per category ───────────────────────────────
-const FILTERS = {
-  All: [],
-  Clothing: [
-    { id: "listing_type", label: "Listing Type", type: "radio", options: ["Buy", "Rent"] },
-    { id: "condition",    label: "Condition",    type: "radio", options: ["New", "Used"] },
-    { id: "size",         label: "Size",         type: "checkbox", options: ["XS", "S", "M", "L", "XL"] },
-    { id: "gender",       label: "Gender",       type: "checkbox", options: ["Men", "Women", "Unisex"] },
-    { id: "subcategory",  label: "Type",         type: "checkbox", options: ["Formalwear", "Business Casual", "Going Out", "Loungewear", "Yale Merch", "Outerwear"] },
-  ],
-  Accessories: [
-    { id: "listing_type", label: "Listing Type", type: "radio", options: ["Buy", "Rent"] },
-    { id: "condition",    label: "Condition",    type: "radio", options: ["New", "Used"] },
-    { id: "subcategory",  label: "Type",         type: "checkbox", options: ["Bags", "Jewelry", "Shoes", "Other"] },
-  ],
-  "Furniture & Decor": [
-    { id: "listing_type", label: "Listing Type", type: "radio", options: ["Buy", "Rent"] },
-    { id: "condition",    label: "Condition",    type: "radio", options: ["New", "Used"] },
-    { id: "subcategory",  label: "Type",         type: "checkbox", options: ["Dorm", "Common Room", "Bathroom", "Other"] },
-  ],
-  "Class Materials": [
-    { id: "listing_type", label: "Listing Type", type: "radio", options: ["Buy", "Rent"] },
-    { id: "condition",    label: "Condition",    type: "radio", options: ["New", "Used"] },
-    { id: "subcategory",  label: "Subject",      type: "checkbox", options: ["STEM", "Humanities", "Social Sciences", "Arts"] },
-    { id: "format",       label: "Format",       type: "radio", options: ["Physical", "Digital"] },
-  ],
-  "Event Tickets": [
-    { id: "subcategory",  label: "Source",       type: "radio", options: ["Yale Events", "Outside Yale"] },
-    { id: "condition",    label: "Condition",    type: "radio", options: ["New", "Resale"] },
-  ],
-};
+  const fetchListings = async (search = '') => {
+    try {
+      setLoading(true);
+      let url = 'http://localhost:8000/api/listings?';
 
-// ── Sidebar filters component ──────────────────────────
-function Sidebar({ activeTab }) {
-  const filters = FILTERS[activeTab] || [];
+      const params = new URLSearchParams();
+      if (search) {
+        params.append('search', search);
+      }
+      if (selectedCategory) {
+        params.append('category', selectedCategory);
+      }
 
-  if (filters.length === 0) {
+      url += params.toString();
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch listings');
+      }
+
+      const data = await response.json();
+      setListings(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchListings(searchTerm);
+  };
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setSearchTerm('');
+    // Update URL
+    if (category) {
+      setSearchParams({ tab: category });
+    } else {
+      setSearchParams({});
+    }
+  };
+
+  const handleCardClick = (listingId) => {
+    navigate(`/listing/${listingId}`);
+  };
+
+  if (loading && listings.length === 0) {
     return (
-      <aside className="sidebar">
-        <div className="sidebar-section">
-          <p className="sidebar-section-title">Price Range</p>
-          <div className="price-range">
-            <input className="price-input" placeholder="$0" type="number" />
-            <span className="price-sep">—</span>
-            <input className="price-input" placeholder="$500" type="number" />
-          </div>
-        </div>
-        <button className="clear-filters">Clear filters</button>
-      </aside>
+      <>
+        <Navbar />
+        <style>{styles}</style>
+        <div className="loading">Loading listings...</div>
+      </>
     );
   }
 
   return (
-    <aside className="sidebar">
-      {filters.map(f => (
-        <div key={f.id} className="sidebar-section">
-          <p className="sidebar-section-title">{f.label}</p>
-          {f.options.map(opt => (
-            <div key={opt} className="filter-option">
-              <input type={f.type} name={f.id} id={`${f.id}-${opt}`} />
-              <label htmlFor={`${f.id}-${opt}`}>{opt}</label>
-            </div>
-          ))}
-        </div>
-      ))}
-      <div className="sidebar-section">
-        <p className="sidebar-section-title">Price Range</p>
-        <div className="price-range">
-          <input className="price-input" placeholder="$0" type="number" />
-          <span className="price-sep">—</span>
-          <input className="price-input" placeholder="$500" type="number" />
-        </div>
-      </div>
-      <button className="clear-filters">Clear filters</button>
-    </aside>
-  );
-}
-
-// ── Main component ─────────────────────────────────────
-export default function Marketplace({ initialTab = "All" }) {
-  const [activeTab, setActiveTab]     = useState(initialTab);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isLoggedIn, setIsLoggedIn]   = useState(false);
-  const [listings, setListings]       = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch("http://localhost:8000/listings")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch listings");
-        return res.json();
-      })
-      .then(data => {
-        setListings(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
-
-  const visibleListings = listings.filter(l => {
-    const matchesTab    = activeTab === "All" || l.category === activeTab;
-    const matchesSearch = l.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          l.sub.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
-
-  return (
     <>
+      <Navbar />
       <style>{styles}</style>
+      <div className="marketplace-container">
+        <div className="marketplace-header">
+          <h1 className="marketplace-title">Marketplace</h1>
 
-      {/* NAVBAR */}
-      <nav className="navbar">
-        <a href="/" className="navbar-logo">Yale<span>Bay</span></a>
-        <ul className="navbar-links">
-          <li><a href="/marketplace" className="active">Browse</a></li>
-          <li><a href="/create-listing">Sell</a></li>
-        </ul>
-        <div className="navbar-right">
-          {isLoggedIn ? (
-            <>
-              <a href="/chat" className="btn-nav-icon">
-                <ChatIcon />
-                <span className="chat-badge">2</span>
-              </a>
-              <div className="btn-nav-profile"><ProfileIcon /></div>
-            </>
-          ) : (
-            <>
-              <button className="btn-login" onClick={() => setIsLoggedIn(true)}>Log in</button>
-              <div className="btn-nav-profile"><ProfileIcon /></div>
-            </>
-          )}
-        </div>
-      </nav>
+          <form onSubmit={handleSearch} className="search-bar">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search listings..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit" className="search-button">
+              Search
+            </button>
+          </form>
 
-      <div className="page">
-        {/* SEARCH + TABS */}
-        <div className="top-bar">
-          <div className="search-row">
-            <div className="search-wrap">
-              <SearchIcon />
-              <input
-                className="search-input"
-                placeholder="Search listings..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <button className="search-btn">Search</button>
-          </div>
-          <div className="tabs-row">
-            {TABS.map(tab => (
+          <div className="category-filters">
+            <button
+              className={`category-button ${selectedCategory === '' ? 'active' : ''}`}
+              onClick={() => handleCategoryClick('')}
+            >
+              All
+            </button>
+            {CATEGORIES.map((category) => (
               <button
-                key={tab}
-                className={`tab ${activeTab === tab ? "active" : ""}`}
-                onClick={() => setActiveTab(tab)}
+                key={category}
+                className={`category-button ${selectedCategory === category ? 'active' : ''}`}
+                onClick={() => handleCategoryClick(category)}
               >
-                {tab}
+                {category}
               </button>
             ))}
           </div>
         </div>
 
-        {/* SIDEBAR + LISTINGS */}
-        <div className="main-layout">
-          <Sidebar activeTab={activeTab} />
+        {error && <div className="error-message">{error}</div>}
 
-          <div className="listings-area">
-            <div className="listings-header">
-              <h1 className="listings-title">
-                {activeTab === "All" ? <><em>All</em> Listings</> : activeTab}
-              </h1>
-              <span className="listings-count">{visibleListings.length} item{visibleListings.length !== 1 ? "s" : ""}</span>
-            </div>
-
-            <div className="listings-grid">
-              {loading ? (
-                <div className="loading-state">Loading listings...</div>
-              ) : error ? (
-                <div className="error-state">Could not load listings — {error}</div>
-              ) : visibleListings.length > 0 ? visibleListings.map(listing => (
-                <a key={listing.id} href={`/listing/${listing.id}`} className="listing-card">
-                  <div className="listing-card-img">
-                    {listing.image_url
-                      ? <img src={listing.image_url} alt={listing.title} style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}} />
-                      : <span style={{fontSize:"2.5rem"}}>📦</span>
-                    }
-                    <span className={`listing-card-badge ${listing.listing_type === "rent" ? "badge-rent" : "badge-sell"}`}>
-                      {listing.listing_type === "rent" ? "Rent" : "Buy"}
-                    </span>
-                  </div>
-                  <div className="listing-card-body">
-                    <p className="listing-card-title">{listing.title}</p>
-                    <p className="listing-card-sub">{listing.category}{listing.subcategory ? ` · ${listing.subcategory}` : ""}</p>
-                    <div className="listing-card-footer">
-                      <span className="listing-card-price">${listing.price}</span>
-                      <span className="listing-card-condition">{listing.condition}</span>
-                    </div>
-                  </div>
-                </a>
-              )) : (
-                <div className="empty-state">
-                  <p>No listings found</p>
-                  <span>Try adjusting your search or filters</span>
-                </div>
-              )}
-            </div>
+        {listings.length === 0 ? (
+          <div className="no-listings">
+            <p>No listings found.</p>
           </div>
-        </div>
+        ) : (
+          <div className="listings-grid">
+            {listings.map((listing) => (
+              <div
+                key={listing.id}
+                className="listing-card"
+                onClick={() => handleCardClick(listing.id)}
+              >
+                {listing.image_url ? (
+                  <img
+                    src={`http://localhost:8000${listing.image_url}`}
+                    alt={listing.title}
+                    className="listing-image"
+                  />
+                ) : (
+                  <div className="no-image-placeholder">No Image</div>
+                )}
+
+                <div className="listing-info">
+                  <h3 className="listing-title">{listing.title}</h3>
+                  <p className="listing-description">{listing.description}</p>
+
+                  {listing.highest_bid ? (
+                    <div className="listing-bid">
+                      Current Bid: ${listing.highest_bid.toFixed(2)}
+                    </div>
+                  ) : (
+                    <div className="listing-bid">No bids yet</div>
+                  )}
+
+                  {listing.seller && (
+                    <div className="listing-seller">
+                      Seller: {listing.seller.name}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
